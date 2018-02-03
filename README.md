@@ -78,9 +78,9 @@ AWS_PROXY_PROFILE=proxy
 SSH_PROXY_USER=proxy-login-user
 SSH_PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
 
-function zsh-ec2ssh-default-proxy() { zsh-ec2ssh-with-proxy $AWS_PROFILE_NAME $AWS_DEFAULT_REGION $SSH_USER $AWS_PROXY_PROFILE $SSH_PROXY_USER $SSH_PRIVATE_KEY_PATH }
-zle -N zsh-ec2ssh-default-proxy
-bindkey '^p' zsh-ec2ssh-default-proxy # Ctrl + p
+function zsh-ec2ssh-production-proxy() { zsh-ec2ssh-with-proxy $AWS_PROFILE_NAME $AWS_DEFAULT_REGION $SSH_USER $AWS_PROXY_PROFILE $SSH_PROXY_USER $SSH_PRIVATE_KEY_PATH }
+zle -N zsh-ec2ssh-production-proxy
+bindkey '^p' zsh-ec2ssh-production-proxy # Ctrl + p
 ```
 
 Your machine --(ssh using `SSH_PROXY_USER` and `SSH_PRIVATE_KEY_PATH`)--> proxy server --(ssh using `SSH_USER` and `id_rsa`)--> target server
