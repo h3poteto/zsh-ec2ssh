@@ -58,8 +58,9 @@ AWS_PROFILE_NAME=default
 AWS_DEFAULT_REGION=ap-northeast-1
 SSH_USER=h3poteto
 SSH_PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
+SSH_PORT=22
 
-function zsh-ec2ssh-default() { zsh-ec2ssh $AWS_PROFILE_NAME $AWS_DEFAULT_REGION $SSH_USER $SSH_PRIVATE_KEY_PATH }
+function zsh-ec2ssh-default() { zsh-ec2ssh $AWS_PROFILE_NAME $AWS_DEFAULT_REGION $SSH_USER $SSH_PRIVATE_KEY_PATH $SSH_PORT }
 zle -N zsh-ec2ssh-default
 bindkey '^t' zsh-ec2ssh-default # Ctrl + t
 ```
@@ -77,13 +78,14 @@ SSH_USER=h3poteto
 AWS_PROXY_PROFILE=proxy
 SSH_PROXY_USER=proxy-login-user
 SSH_PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
+SSH_PROXY_PORT=22
 
-function zsh-ec2ssh-production-proxy() { zsh-ec2ssh-with-proxy $AWS_PROFILE_NAME $AWS_DEFAULT_REGION $SSH_USER $AWS_PROXY_PROFILE $SSH_PROXY_USER $SSH_PRIVATE_KEY_PATH }
+function zsh-ec2ssh-production-proxy() { zsh-ec2ssh-with-proxy $AWS_PROFILE_NAME $AWS_DEFAULT_REGION $SSH_USER $AWS_PROXY_PROFILE $SSH_PROXY_USER $SSH_PRIVATE_KEY_PATH $SSH_PROXY_PORT }
 zle -N zsh-ec2ssh-production-proxy
 bindkey '^p' zsh-ec2ssh-production-proxy # Ctrl + p
 ```
 
-Your machine --(ssh using `SSH_PROXY_USER` and `SSH_PRIVATE_KEY_PATH`)--> proxy server --(ssh using `SSH_USER` and `id_rsa`)--> target server
+Your machine --(ssh using `SSH_PROXY_USER`, `SSH_PRIVATE_KEY_PATH` and `SSH_PROXY_PORT`)--> proxy server --(ssh using `SSH_USER` and `id_rsa`)--> target server
 
 ## Arguments
 ### zsh-ec2ssh
@@ -94,6 +96,7 @@ Your machine --(ssh using `SSH_PROXY_USER` and `SSH_PRIVATE_KEY_PATH`)--> proxy 
 |AWS_DEFAULT_REGION|AWS region name which instances are located.|`AWS_DEFAULT_REGION` environment variables|
 |SSH_USER|User name to login the server.|`USER` environment variables|
 |SSH_PRIVATE_KEY_PATH|Private key path of ssh.|`$HOME/.ssh/id_rsa`|
+|SSH_PORT|Port to use ssh.|22|
 
 ### zsh-ec2ssh-with-proxy
 
@@ -105,6 +108,7 @@ Your machine --(ssh using `SSH_PROXY_USER` and `SSH_PRIVATE_KEY_PATH`)--> proxy 
 |AWS_PROXY_PROFILE|AWS profile name which proxy server are located.|`AWS_DEFAULT_PROFILE` environment variables|
 |AWS_PROXY_USER|User name to login proxy server.|`USER` environment variables|
 |SSH_PRIVATE_KEY_PATH|Private key path to login proxy server.|`$HOME/.ssh/id_rsa`|
+|SSH_PROXY_PORT|Port which is used ssh login to proxy server.|22|
 
 ## License
 
