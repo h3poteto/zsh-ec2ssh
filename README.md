@@ -75,17 +75,19 @@ Please write shortcut setting in your `~/.zshrc`:
 AWS_PROFILE_NAME=production
 AWS_DEFAULT_REGION=ap-northeast-1
 SSH_USER=h3poteto
+SSH_PRIVATE_KEY_PATH=/var/opt/keys/.ssh/private.pem
+SSH_PORT=22
 AWS_PROXY_PROFILE=proxy
 SSH_PROXY_USER=proxy-login-user
-SSH_PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
+SSH_PROXY_PRIVATE_KEY_PATH=$HOME/.ssh/id_rsa
 SSH_PROXY_PORT=22
 
-function zsh-ec2ssh-production-proxy() { zsh-ec2ssh-with-proxy $AWS_PROFILE_NAME $AWS_DEFAULT_REGION $SSH_USER $AWS_PROXY_PROFILE $SSH_PROXY_USER $SSH_PRIVATE_KEY_PATH $SSH_PROXY_PORT }
+function zsh-ec2ssh-production-proxy() { zsh-ec2ssh-with-proxy $AWS_PROFILE_NAME $AWS_DEFAULT_REGION $SSH_USER $SSH_PRIVATE_KEY_PATH $SSH_PORT $AWS_PROXY_PROFILE $SSH_PROXY_USER $SSH_PROXY_PRIVATE_KEY_PATH $SSH_PROXY_PORT }
 zle -N zsh-ec2ssh-production-proxy
 bindkey '^p' zsh-ec2ssh-production-proxy # Ctrl + p
 ```
 
-Your machine --(ssh using `SSH_PROXY_USER`, `SSH_PRIVATE_KEY_PATH` and `SSH_PROXY_PORT`)--> proxy server --(ssh using `SSH_USER` and `id_rsa`)--> target server
+Your machine --(ssh using `SSH_PROXY_USER`, `SSH_PROXY_PRIVATE_KEY_PATH` and `SSH_PROXY_PORT`)--> proxy server --(ssh using `SSH_USER`, `SSH_PRIVATE_KEY_PATH` and `SSH_PORT`)--> target server
 
 ## Arguments
 ### zsh-ec2ssh
@@ -105,9 +107,11 @@ Your machine --(ssh using `SSH_PROXY_USER`, `SSH_PRIVATE_KEY_PATH` and `SSH_PROX
 |AWS_PROFILE_NAME|AWS profile name which target instances are located.|`AWS_DEFAULT_PROFILE` environment variables|
 |AWS_DEFAULT_REGION|AWS region name which target instances are located.|`AWS_DEFAULT_REGION` environment variables|
 |SSH_USER|User name to login target server.|`USER` environment variables|
+|SSH_PRIVATE_KEY_PATH|Private key path which is used login to target server.|`$HOME/.ssh/id_rsa`|
+|SSH_PORT|Port which is used login to target server.|22|
 |AWS_PROXY_PROFILE|AWS profile name which proxy server are located.|`AWS_DEFAULT_PROFILE` environment variables|
-|AWS_PROXY_USER|User name to login proxy server.|`USER` environment variables|
-|SSH_PRIVATE_KEY_PATH|Private key path to login proxy server.|`$HOME/.ssh/id_rsa`|
+|SSH_PROXY_USER|User name to login proxy server.|`USER` environment variables|
+|SSH_PROXY_PRIVATE_KEY_PATH|Private key path to login proxy server.|`$HOME/.ssh/id_rsa`|
 |SSH_PROXY_PORT|Port which is used ssh login to proxy server.|22|
 
 ## License
