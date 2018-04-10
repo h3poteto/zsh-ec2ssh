@@ -46,17 +46,22 @@ function _load_port() {
 function zsh-ec2ssh() {
     local aws_profile_name=$1
     local aws_region=$2
-    local ssh_user=$3
-    local ssh_private_key_path=$4
-    local ssh_port=$5
-    local ssh_proxy=$6
+    local target_user=$3
+    local target_private_key_path=$4
+    local target_port=$5
+    local proxy_host=$6
     local proxy_user=$7
+    local proxy_key_path=$8
+    local proxy_port=$9
 
     aws_profile_name=`_load_aws_profile $aws_profile_name`
     aws_region=`_load_aws_region $aws_region`
-    ssh_user=`_load_user $ssh_user`
-    ssh_private_key_path=`_load_ssh_private_key_path $ssh_private_key_path`
-    ssh_port=`_load_port $ssh_port`
+    target_user=`_load_user $target_user`
+    target_private_key_path=`_load_ssh_private_key_path $target_private_key_path`
+    target_port=`_load_port $target_port`
+    proxy_user=`_load_user $proxy_user`
+    proxy_key_path=`_load_ssh_private_key_path $proxy_key_path`
+    proxy_port=`_load_port $proxy_port`
 
     if [ -z "${aws_profile_name}" ]; then
         echo "AWS profile name is required. Please call this function with aws profile name or set AWS_DEFAULT_REGION in evironment variables."
@@ -68,7 +73,7 @@ function zsh-ec2ssh() {
         return
     fi
 
-    if [ -z "${ssh_user}" ]; then
+    if [ -z "${target_user}" ]; then
         echo "User is required. Please call this function with user or set USER in environment variables."
         return
     fi
@@ -76,10 +81,10 @@ function zsh-ec2ssh() {
     echo "Fetching ec2 host..."
     local selected_host=$(myaws ec2 ls --profile=${aws_profile_name} --region=${aws_region} --fields='InstanceId PublicIpAddress LaunchTime Tag:Name Tag:attached_asg' | sort -k4 | peco | cut -f2)
     if [ -n "${selected_host}" ]; then
-        if [ -z "${ssh_proxy}" ]; then
-            BUFFER="ssh -i ${ssh_private_key_path} -p ${ssh_port} ${ssh_user}@${selected_host} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+        if [ -z "${proxy_host}" ]; then
+            BUFFER="ssh -i ${target_private_key_path} -p ${target_port} ${target_user}@${selected_host} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
         else
-            BUFFER="ssh -i ${ssh_private_key_path} -p ${ssh_port} -t ${proxy_user}@${ssh_proxy} ssh ${ssh_user}@${selected_host} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+            BUFFER="ssh -i ${proxy_key_path} -p ${proxy_port} -t ${proxy_user}@${proxy_host} ssh ${target_user}@${selected_host} -i ${target_private_key_path} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
         fi
         if zle; then
             zle accept-line
@@ -96,21 +101,25 @@ zle -N zsh-ec2ssh
 function zsh-ec2ssh-with-proxy() {
     local aws_profile_name=$1
     local aws_region=$2
-    local ssh_user=$3
-    local ssh_proxy_profile=$4
-    local proxy_user=$5
-    local ssh_private_key_path=$6
-    local ssh_proxy_port=$7
+    local target_user=$3
+    local target_private_key_path=$4
+    local target_port=$5
+    local proxy_profile=$6
+    local proxy_user=$7
+    local proxy_key_path=$8
+    local proxy_port=$9
 
     aws_profile_name=`_load_aws_profile $aws_profile_name`
     aws_region=`_load_aws_region $aws_region`
-    ssh_user=`_load_user $ssh_user`
-    ssh_proxy_profile=`_load_aws_profile $ssh_proxy_profile`
+    target_user=`_load_user $target_user`
+    target_private_key_path=`_load_ssh_private_key_path $target_private_key_path`
+    target_port=`_load_port $target_port`
+    proxy_profile=`_load_aws_profile $proxy_profile`
     proxy_user=`_load_user $proxy_user`
-    ssh_private_key_path=`_load_ssh_private_key_path $ssh_private_key_path`
-    ssh_proxy_port=`_load_port $ssh_proxy_port`
+    proxy_key_path=`_load_ssh_private_key_path $proxy_key_path`
+    proxy_port=`_load_port $proxy_port`
 
-    if [ -z "${aws_profile_name}" -o -z "${ssh_proxy_profile}" ]; then
+    if [ -z "${aws_profile_name}" -o -z "${proxy_profile}" ]; then
         echo "AWS profile name is required. Please call this function with aws profile name or set AWS_DEFAULT_REGION in evironment variables."
         return
     fi
@@ -120,15 +129,15 @@ function zsh-ec2ssh-with-proxy() {
         return
     fi
 
-    if [ -z "${ssh_user}" -o -z "${proxy_user}" ]; then
+    if [ -z "${target_user}" -o -z "${proxy_user}" ]; then
         echo "User is required. Please call this function with user or set USER in environment variables."
         return
     fi
 
     echo "Fetching ec2 host..."
-    local selected_proxy=$(myaws ec2 ls --profile=${ssh_proxy_profile} --region=${aws_region} --fields='InstanceId PublicIpAddress LaunchTime Tag:Name Tag:attached_asg' | sort -k4 | peco | cut -f2)
+    local selected_proxy=$(myaws ec2 ls --profile=${proxy_profile} --region=${aws_region} --fields='InstanceId PublicIpAddress LaunchTime Tag:Name Tag:attached_asg' | sort -k4 | peco | cut -f2)
     if [ -n "${selected_proxy}" ]; then
-        zsh-ec2ssh $aws_profile_name $aws_region $ssh_user $ssh_private_key_path $ssh_proxy_port $selected_proxy $proxy_user
+        zsh-ec2ssh $aws_profile_name $aws_region $target_user $target_private_key_path $target_port $selected_proxy $proxy_user $proxy_key_path $proxy_port
     fi
     if zle; then
         zle clear-screen
